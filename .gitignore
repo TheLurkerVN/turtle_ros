@@ -6,3 +6,6 @@ build
 install
 log
 .vscode
+User_Interface/__pycache__
+User_Interface/backend_classes/__pycache__
+.gitignore
