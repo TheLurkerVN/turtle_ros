@@ -9,3 +9,6 @@ log
 User_Interface/__pycache__
 User_Interface/backend_classes/__pycache__
 .gitignore
+test_map.pgm
+test_map.yaml
+test.pgm
