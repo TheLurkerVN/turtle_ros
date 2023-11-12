@@ -17,7 +17,7 @@ def generate_launch_description():
         default=os.path.join(
             pkg_dir,
             'map',
-            'map_default.yaml'))
+            'test_map.yaml'))
     
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
 
@@ -28,8 +28,6 @@ def generate_launch_description():
             get_package_share_directory('turtlebot3_app_launcher'),
             'config',
             param_file_name))
-
-    nav2_launch_file_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
 
     rviz_config_dir = os.path.join(
         get_package_share_directory('nav2_bringup'),
@@ -50,7 +48,7 @@ def generate_launch_description():
             executable='navmodule',
             name='navmodule'),
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([nav2_launch_file_dir, '/bringup_launch.py']),
+            PythonLaunchDescriptionSource(os.path.join(pkg_dir, 'nav2_launch.launch.py')),
             launch_arguments={
                 'map': map_dir,
                 'use_sim_time': use_sim_time,

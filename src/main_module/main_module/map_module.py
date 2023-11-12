@@ -20,6 +20,7 @@ class map_module(Node):
         self.saveMapBool = False
         self.pose = (0.0, 0.0)
         self.origin = (0.0, 0.0)
+        self.rotation = 0.0
 
         self.mqtt = mqtt
         self.mqtt.mqttclient.message_callback_add(CMD_MQTT_MAP, self.on_cmd_received)
@@ -53,14 +54,18 @@ class map_module(Node):
         self.get_logger().info('Pose publisher')
         ioPose = [sum(x) for x in zip(self.pose,self.origin)]
         ioPoint = list(ioPose) + list(self.origin)
+        ioPoint.append(self.rotation)
+        print(ioPoint)
         mqttPose = struct.pack(">{}f".format(len(ioPoint)), *ioPoint)
         self.mqtt.mqttclient.publish(POSE_MQTT, mqttPose)
-            
             
         
     def publish_pose(self, msg):
         self.get_logger().info('Received pose')
         self.pose = list(x * -1 for x in (msg.transform.translation.x, msg.transform.translation.y))
+        rotation = [msg.transform.rotation.x, msg.transform.rotation.y, msg.transform.rotation.z, msg.transform.rotation.w]
+        (roll, pitch, yaw) = euler_from_quaternion(rotation)
+        self.rotation = yaw
         #self.ioPose = struct.pack(">{}f".format(len(pose)), *pose)
         #self.mqtt.mqttclient.publish(POSE_MQTT, self.ioPose)
 
@@ -114,8 +119,8 @@ class map_module(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-
-    ros_node = map_module()
+    mqtt = MQTT()
+    ros_node = map_module(mqtt)
 
     rclpy.spin(ros_node)
 

@@ -15,7 +15,7 @@ class key_module(Node):
     def __init__(self, mqtt):
         super().__init__('key_node')
 
-        self.battery = 100
+        self.bat = 100
 
         self.mqtt = mqtt
         self.mqtt.mqttclient.message_callback_add(KEY_MQTT, self.on_key_received)

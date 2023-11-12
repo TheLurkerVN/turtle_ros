@@ -5,6 +5,7 @@ import struct
 import numpy as np
 from PIL import Image, ImageTk, GifImagePlugin
 import paho.mqtt.client as mqtt
+import math
 
 from control import Control
 import backend_classes.topics as topics
@@ -38,11 +39,15 @@ class Map(tk.Canvas):
 
         self.origin = (0.0, 0.0)
         self.pose = (0.0, 0.0)
+        self.rotation = 0.0
+        self.rotationOffset = [0.0, 0.0]
         self.ratio = 0.0
         self.actualPos = (2.0, 2.0)
 
         self.originDot = self.create_oval(self.actualPos[0] - 2, self.actualPos[1] - 2, self.actualPos[0] + 2, self.actualPos[1] + 2, fill = 'red')
+        self.rotationLine = self.create_line(self.actualPos[0], self.actualPos[1], self.actualPos[0] + self.rotationOffset[0], self.actualPos[1] + self.rotationOffset[1], fill = 'red', width = 2)
         self.itemconfig(self.originDot, state = 'hidden')
+        self.itemconfig(self.rotationLine, state = 'hidden')
         self.navDot = self.create_oval(0, 0, 4, 4, fill = 'green')
         self.itemconfig(self.navDot, state='hidden')
 
@@ -115,23 +120,33 @@ class Map(tk.Canvas):
         self.itemconfig(self.mapCanvas, image = self.scanImage)
         #self.mapCanvas = self.create_image(0,0, anchor="nw", image = self.scanImage)
         self.tag_raise(self.navDot)
+        self.tag_raise(self.rotationLine)
         # Assign random container attr with the image so it doesn't flicker
         # If not: garbage collector
         self.container.temp = self.scanImage    
 
     def pose_receiver(self, client, userdata, msg):
         print("Received pose")
-        self.pose = struct.unpack(">{}f".format(4), msg.payload[0:32])
+        self.pose = struct.unpack(">{}f".format(5), msg.payload[0:40])
         #self.pose = [sum(x) for x in zip(self.pose,self.origin)]
         #print(self.pose)
+        self.rotation = self.pose[4]
         self.origin = self.pose[2:4]
         self.pose = self.pose[0:2]
+        self.rotationOffset[0] = 20 * math.sin(self.rotation)
+        self.rotationOffset[1] = 20 * math.cos(self.rotation)
+        print(self.rotationOffset)
         self.actualPos = [x / 0.05 for x in self.pose]       
         self.actualPos = [x * self.ratio * -1.0 for x in self.actualPos]
         self.actualPos = self.actualPos[::-1]
+        self.delete(self.rotationLine)
+        self.rotationLine = self.create_line(self.actualPos[0] + 2, self.actualPos[1] + 2, 
+                                             self.actualPos[0] + self.rotationOffset[0], self.actualPos[1] + self.rotationOffset[1], 
+                                             fill = 'red', width = 2)
         self.moveto(self.originDot, self.actualPos[0], self.actualPos[1])
         self.itemconfig(self.originDot, state = 'normal')
         self.tag_raise(self.originDot)
+        self.tag_raise(self.rotationLine)
         
 
 
