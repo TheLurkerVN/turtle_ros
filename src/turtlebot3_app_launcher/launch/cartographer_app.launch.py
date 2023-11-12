@@ -51,6 +51,14 @@ def generate_launch_description():
             'use_sim_time',
             default_value='false',
             description='Use simulation (Gazebo) clock if true'),
+        DeclareLaunchArgument(
+            'resolution',
+            default_value=resolution,
+            description='Resolution of a grid cell in the published occupancy grid'),
+        DeclareLaunchArgument(
+            'publish_period_sec',
+            default_value=publish_period_sec,
+            description='OccupancyGrid publishing period'),
 
         Node(
             package='pose_module',
@@ -60,11 +68,11 @@ def generate_launch_description():
             package='main_module',
             executable='testthread',
             name='testthread'),
+
         Node(
             package='nav2_map_server',
             executable='map_saver_server',
             name='map_saver'),
-        
         Node(
             package='nav2_lifecycle_manager',
             executable='lifecycle_manager',
@@ -81,19 +89,17 @@ def generate_launch_description():
             parameters=[{'use_sim_time': use_sim_time}],
             arguments=['-configuration_directory', cartographer_config_dir,
                        '-configuration_basename', configuration_basename]),
-        DeclareLaunchArgument(
-            'resolution',
-            default_value=resolution,
-            description='Resolution of a grid cell in the published occupancy grid'),
+        Node(
+            package='cartographer_ros',
+            executable='cartographer_occupancy_grid_node',
+            name='cartographer_occupancy_grid_node',
+            output='screen',
+            parameters=[{'use_sim_time': use_sim_time}],
+            arguments=['-resolution', resolution, '-publish_period_sec', publish_period_sec]),
 
-        DeclareLaunchArgument(
-            'publish_period_sec',
-            default_value=publish_period_sec,
-            description='OccupancyGrid publishing period'),
-
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/cartographer_util.launch.py']),
-            launch_arguments={'use_sim_time': use_sim_time, 'resolution': resolution,
-                              'publish_period_sec': publish_period_sec}.items(),
-        ),
+        #IncludeLaunchDescription(
+        #    PythonLaunchDescriptionSource([ThisLaunchFileDir(), '/cartographer_util.launch.py']),
+        #    launch_arguments={'use_sim_time': use_sim_time, 'resolution': resolution,
+        #                      'publish_period_sec': publish_period_sec}.items(),
+        #),
     ])

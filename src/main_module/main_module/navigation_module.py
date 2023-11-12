@@ -18,22 +18,17 @@ class navigation_module(Node):
         super().__init__('navigation_node')
         self.controlString = list("000")
         self.navPos = (0.0, 0.0)
-        self.battery = 100
         self.mqtt = mqtt
         self.mqtt.mqttclient.message_callback_add(NAV_MQTT, self.on_nav_received)
         self.mqtt.mqttclient.message_callback_add(CMD_MQTT_NAV, self.on_cmd_received)
         self.navigator = Nav2Navigator()
         self.navigator.changeToNavMode()
         self.timer = self.create_timer(1, self.timerTest)
-        self.batterytimer = self.create_timer(3, self.publishBattery)
         self.subscription_battery = self.create_subscription(
             BatteryState,
             BATTERY_TOPIC,
             self.check_battery,
             qos_profile_system_default)
-
-    def publishBattery(self):
-        self.mqtt.mqttclient.publish(BATTERY_MQTT, self.battery)
 
     def timerTest(self):
         

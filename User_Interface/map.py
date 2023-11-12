@@ -70,6 +70,7 @@ class Map(tk.Canvas):
         
     def map_receiver(self, client, userdata, msg):
         print("Received map content")
+        self.friendContainer.statusLabel.config(text = "Ready!")
         self.size = struct.unpack(">{}h".format(2), msg.payload[0:4])
         self.content = struct.unpack(">{}h".format(self.size[0] * self.size[1]), msg.payload[4:])
 
