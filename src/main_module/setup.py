@@ -25,8 +25,7 @@ setup(
         	'keymodule = main_module.key_module:main',
             'mapmodule = main_module.map_module:main',
             'navmodule = main_module.navigation_module:main',
-            'slammodule = main_module.slam_launch_module:main',
-            'navmodemodule = main_module.nav_launch_module:main',
+            'launchmodule = main_module.launch_module:main',
             'testthread = main_module.thread_test:main'
         ],
     },

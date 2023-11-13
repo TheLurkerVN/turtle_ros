@@ -4,9 +4,9 @@ from rclpy.qos import qos_profile_system_default
 
 import paho.mqtt.client as mqtt
 
-from .topics import KEY_MQTT, NAV_MQTT, CMD_MQTT_KEY, CMD_MQTT_MAP, CMD_MQTT_NAV, CMD_MQTT_SLAM, CMD_MQTT_NAV_MODE
+from .topics import KEY_MQTT, NAV_MQTT, CMD_MQTT_KEY, CMD_MQTT_MAP, CMD_MQTT_NAV, CMD_MQTT_MODE
 
-MQTT_SERVER = "10.90.229.66"
+MQTT_SERVER = "192.168.1.12"
 MQTT_USERNAME = "amc"
 MQTT_PASSWORD = "lurker"
 
@@ -27,8 +27,7 @@ class MQTT():
         self.mqttclient.subscribe(CMD_MQTT_KEY)
         self.mqttclient.subscribe(CMD_MQTT_MAP)
         self.mqttclient.subscribe(CMD_MQTT_NAV)
-        self.mqttclient.subscribe(CMD_MQTT_SLAM)
-        self.mqttclient.subscribe(CMD_MQTT_NAV_MODE)
+        self.mqttclient.subscribe(CMD_MQTT_MODE)
 
     def on_message(self, client, userdata, msg):
         print("Received Message")

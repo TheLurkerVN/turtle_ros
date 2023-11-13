@@ -17,7 +17,7 @@ def generate_launch_description():
         default=os.path.join(
             pkg_dir,
             'map',
-            'test_map.yaml'))
+            'map_default.yaml'))
     
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
 

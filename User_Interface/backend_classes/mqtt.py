@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 import backend_classes.topics as topics
 
-MQTT_SERVER = "10.90.229.66"
+MQTT_SERVER = "192.168.1.12"
 MQTT_USERNAME = "amc"
 MQTT_PASSWORD = "lurker"
 
@@ -26,7 +26,6 @@ class MQTTClient():
         self.client.subscribe(topics.MAP_ORIGIN_MQTT)
         self.client.subscribe(topics.MAP_CONTENT_MQTT)
         self.client.subscribe(topics.POSE_MQTT)
-        self.client.subscribe(topics.STATUS_MQTT)
         self.client.subscribe(topics.BATTERY_MQTT)
 
     def on_message(self, client, userdata, rc):
