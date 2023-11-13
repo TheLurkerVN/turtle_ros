@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 import backend_classes.topics as topics
 
-MQTT_SERVER = "192.168.1.12"
+MQTT_SERVER = "10.90.229.66"
 MQTT_USERNAME = "amc"
 MQTT_PASSWORD = "lurker"
 

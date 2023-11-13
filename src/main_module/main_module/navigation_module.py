@@ -38,6 +38,9 @@ class navigation_module(Node):
         if (self.controlString[1] == '1'):
             self.controlString[1] = '0'
             self.navigator.cancelNav()
+        if (self.controlString[2] == '1'):
+            self.controlString[2] = '0'
+            self.navigator.clearCostmap()
 
     def check_battery(self, msg):
         self.battery = msg.percentage
@@ -55,6 +58,8 @@ class navigation_module(Node):
         #print("Received command {}".format(msg.payload))
         if msg.payload.decode("utf-8") == "cancelnav":
             self.controlString[1] = '1'
+        elif msg.payload.decode("utf-8") == "calibrate":
+            self.controlString[2] = '1'
             
         
 
@@ -100,6 +105,9 @@ class Nav2Navigator():
         initial_pose.pose.orientation.w = 1.0
 
         self.nav.setInitialPose(initial_pose)
+
+    def clearCostmap(self):
+        self.nav.clearAllCostmaps()
 
         
 

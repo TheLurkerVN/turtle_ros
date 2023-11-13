@@ -95,9 +95,9 @@ class ControlPanel(ttk.Frame):
         print("savemap")
 
     def update_command(self):
-        self.mqtt.publishControl(topics.CMD_MQTT_MAP, "update")
-        self.statusLabel.config(text = "Updating")
-        print("update")
+        self.mqtt.publishControl(topics.CMD_MQTT_NAV, "calibrate")
+        self.statusLabel.config(text = "Calibrating...")
+        print("calibrate")
 
     def slammode_command(self):
         print("slammode")
