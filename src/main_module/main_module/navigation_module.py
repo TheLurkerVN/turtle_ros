@@ -18,6 +18,7 @@ class navigation_module(Node):
         super().__init__('navigation_node')
         self.controlString = list("000")
         self.navPos = (0.0, 0.0)
+        self.battery = 100.0
         self.mqtt = mqtt
         self.mqtt.mqttclient.message_callback_add(NAV_MQTT, self.on_nav_received)
         self.mqtt.mqttclient.message_callback_add(CMD_MQTT_NAV, self.on_cmd_received)

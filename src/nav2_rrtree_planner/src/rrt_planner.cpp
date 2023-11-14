@@ -1,4 +1,4 @@
-#include "nav2_straightline_planner/rrt_planner.hpp"
+#include "nav2_rrtree_planner/rrt_planner.hpp"
 #include <random>
 #include <cmath>
 #include <cstdlib>
@@ -37,8 +37,6 @@ namespace rrt_planner
 
     coordsW rrt_planner::samplePoint()
     {
-        
-
         coordsW temp;
         int coin = rand() % 100;
         if (coin < 10)
@@ -51,9 +49,6 @@ namespace rrt_planner
             temp.x = rand() % sizeX;
             temp.y = rand() % sizeY;
         }
-        
-
-        //std::cout << "Random point:" << temp.x << " " << temp.y << std::endl;
         return temp;
     }
 
@@ -70,10 +65,12 @@ namespace rrt_planner
         coordsW vector;
         vector.x = end.x - (double) start->_xPos;
         vector.y = end.y - (double) start->_yPos;
+        
         double norm = sqrt(vector.x * vector.x + vector.y * vector.y);
         coordsW unitVector;
         unitVector.x = vector.x / norm;
         unitVector.y = vector.y / norm;
+
         return unitVector;
     }
 
@@ -81,8 +78,20 @@ namespace rrt_planner
     {
         if (point.x == goalRRT->_xPos && point.y == goalRRT->_yPos)
         {
-            nearestRRT->_child.push_back(goalRRT);
-            goalRRT->_parent = nearestRRT;
+            if (nearestRRT->_child.size() != 0)
+            {
+                std::cout << "Encoutered child\n";
+                goalRRT->_parent = nearestRRT->_child.back();
+                nearestRRT->_child.back()->_child.push_back(goalRRT);
+            }
+            else
+            {
+                std::cout << "Encoutered zero child\n";
+                goalRRT->_parent = nearestRRT;
+                nearestRRT->_child.push_back(goalRRT);
+            }
+            std::cout << nearestRRT->_child.size() << std::endl;
+            
         }
         else
         {
@@ -126,7 +135,6 @@ namespace rrt_planner
     {
         coordsW unitVector = getUnitVector(start, end);
         coordsW tempPoint;
-
         for (int i = 0; i < (int) distance(start, end); i++)
         {
             tempPoint.x = round(start->_xPos + i * unitVector.x);
@@ -219,6 +227,7 @@ namespace rrt_planner
                     addChild(newPoint);
                     if (checkGoal(newPoint))
                     {
+                        //std::cout << checkObstacle(goalRRT, newPoint) << std::endl;
                         std::cout << "Found goal!" << std::endl;
                         coordsW temp;
                         temp.x = goalRRT->_xPos;
@@ -226,7 +235,7 @@ namespace rrt_planner
                         addChild(temp);
                         break;
                     }
-                }                     
+                }          
             }   
         }
     }
@@ -301,17 +310,6 @@ namespace rrt_planner
             std::cout << "IterLimit reached / No suitable path" << std::endl;
 
         }
-
-        /*
-        coordsW temp;
-        std::cout << waypoints.size();
-        raw_path.reserve(waypoints.size());
-        for (int i = waypoints.size() - 1; i >= 0; i--)
-        {
-            costmap_->mapToWorld(waypoints[i].x, waypoints[i].y, temp.x, temp.y);
-            raw_path.push_back(temp);
-        }
-        */
 
         
         std::cout << "Clearing tree\n";

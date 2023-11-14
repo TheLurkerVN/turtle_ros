@@ -103,15 +103,14 @@ class ControlPanel(ttk.Frame):
         print("slammode")
         self.mqtt.publishControl(topics.CMD_MQTT_MODE, "slam_mode")
         self.statusLabel.config(text = "SLAM Mode Initializing")
-        #self.navmode_button.config(state = DISABLED)
-        
+        self.nav_origin_button.config(state = DISABLED)
+        self.cancel_button.config(state = DISABLED)
+        self.save_button.config(state = NORMAL)    
 
     def navigationmode_command(self):
         print("navmode")
         self.mqtt.publishControl(topics.CMD_MQTT_MODE, "navigation_mode")
         self.statusLabel.config(text = "Nav Mode Initializing")
-        #self.slammode_button.config(state = DISABLED)
-
-    
-
-
+        self.nav_origin_button.config(state = NORMAL)
+        self.cancel_button.config(state = NORMAL)
+        self.save_button.config(state = DISABLED)

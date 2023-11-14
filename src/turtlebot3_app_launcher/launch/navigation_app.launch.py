@@ -35,6 +35,10 @@ def generate_launch_description():
         'nav2_default_view.rviz')
     
     return LaunchDescription([
+        DeclareLaunchArgument(
+            'use_sim_time',
+            default_value='false',
+            description='Use simulation (Gazebo) clock if true'),
         Node(
             package='pose_module',
             executable='posemodule',

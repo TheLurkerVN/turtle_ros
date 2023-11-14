@@ -1,0 +1,5 @@
+<library path="nav2_rrtree_planner_plugin">
+  <class name="nav2_rrtree_planner/RRT_Planner" type="nav2_rrtree_planner::RRT_Planner" base_class_type="nav2_core::GlobalPlanner">
+    <description>Rapidly Randomly exploring Tree Planner Plugin.</description>
+  </class>
+</library>

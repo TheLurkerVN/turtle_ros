@@ -1,6 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "nav2_costmap_2d/costmap_2d_ros.hpp"
-#include "nav2_straightline_planner/rrt_nodes.hpp"
+#include "nav2_rrtree_planner/rrt_nodes.hpp"
 #include "nav_msgs/msg/path.hpp"
 #include <memory>
 #include <vector>
@@ -57,8 +57,6 @@ namespace rrt_planner
             void resetNearestValues();
 
             void backtrack(rrt_nodes *goal);
-
-            void test();
 
             void generateRawPath();
 
