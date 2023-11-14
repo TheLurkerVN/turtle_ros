@@ -20,6 +20,7 @@ class ControlPanel(ttk.Frame):
         
         self.mqtt = mqtt
         self.mqtt.client.message_callback_add(topics.BATTERY_MQTT, self.battery_status)
+        self.mqtt.client.message_callback_add(topics.RESULT_MQTT, self.gotopose_status)
 
         self.container = container
         self.config(height = 1000, width = 500)
@@ -42,6 +43,11 @@ class ControlPanel(ttk.Frame):
         #self.statusLabel.place(x = 0, y = 0)
         #self.statusLabel.grid(column=0, row=0)
         self.statusLabel.pack(side='left', expand='True', anchor = tk.NW)
+
+        self.GoToPoseLabel = Label(self, text='Unknown')
+        #self.statusLabel.place(x = 0, y = 0)
+        #self.statusLabel.grid(column=0, row=0)
+        self.GoToPoseLabel.pack(side='left', expand='True', anchor = tk.NW)
 
         self.batteryLabel = Label(self, text='Battery: 100%')
         #self.batteryLabel.place(x = 400, y = 0)
@@ -76,6 +82,9 @@ class ControlPanel(ttk.Frame):
         if self.bat > 100.0:
             self.bat = 100
         self.batteryLabel.config(text = "Battery: {}%".format(self.bat))
+
+    def gotopose_status(self, client, userdata, msg):
+        self.GoToPoseLabel.config(text = msg.payload)
 
     def origin_navigation(self):
         nav_coords = list((0.0, 0.0))

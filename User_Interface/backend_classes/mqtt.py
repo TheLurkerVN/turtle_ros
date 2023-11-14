@@ -27,6 +27,7 @@ class MQTTClient():
         self.client.subscribe(topics.MAP_CONTENT_MQTT)
         self.client.subscribe(topics.POSE_MQTT)
         self.client.subscribe(topics.BATTERY_MQTT)
+        self.client.subscribe(topics.RESULT_MQTT)
 
     def on_message(self, client, userdata, rc):
         print("Message received")

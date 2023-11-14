@@ -51,7 +51,6 @@ class key_module(Node):
         self.mqtt.mqttclient.publish(BATTERY_MQTT, self.bat)
 
 
-
 def main(args=None):
     rclpy.init(args=args)
 

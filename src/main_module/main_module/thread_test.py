@@ -12,24 +12,17 @@ def main(args=None):
 
     key = key_module(mqtt)
     map = map_module(mqtt)
-    #slam = slam_launch_module(mqtt)
-    #nav = navigation_module(mqtt)
 
-    
     exec = MultiThreadedExecutor()
 
     exec.add_node(key)
     exec.add_node(map)
-    #exec.add_node(slam)
-    #exec.add_node(nav)
 
     exec.spin()
     exec.shutdown()
 
     key.destroy_node()
     map.destroy_node()
-    #slam.destroy_node()
-    #nav.destroy_node()
     
     rclpy.shutdown()
 

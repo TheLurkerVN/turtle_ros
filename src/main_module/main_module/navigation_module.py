@@ -1,14 +1,14 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_system_default
-from nav2_simple_commander.robot_navigator import BasicNavigator
+from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 
 from geometry_msgs.msg import PoseStamped, TransformStamped
 from sensor_msgs.msg import BatteryState
 from nav_msgs.msg import Path
 
 from .utils.mqtt_util import MQTT
-from .utils.topics import NAV_MQTT, CMD_MQTT_NAV, BATTERY_MQTT, BATTERY_TOPIC, POSE_TOPIC
+from .utils.topics import NAV_MQTT, CMD_MQTT_NAV, BATTERY_TOPIC, RESULT_MQTT
 import struct
 
 #rclpy.init()
@@ -25,11 +25,30 @@ class navigation_module(Node):
         self.navigator = Nav2Navigator()
         self.navigator.changeToNavMode()
         self.timer = self.create_timer(1, self.timerTest)
+        self.timerProgress = self.create_timer(1, self.timerProgress)
+
         self.subscription_battery = self.create_subscription(
             BatteryState,
             BATTERY_TOPIC,
             self.check_battery,
             qos_profile_system_default)
+
+    def timerProgress(self):
+        if not self.navigator.nav.isTaskComplete():
+            feedback = self.navigator.nav.getFeedback()
+            print(feedback)
+        else:
+            print("Result:")
+            result = self.navigator.nav.getResult()
+            if result == TaskResult.SUCCEEDED:
+                self.mqtt.mqttclient.publish(RESULT_MQTT, "Succeed")
+            elif result == TaskResult.CANCELED:
+                self.mqtt.mqttclient.publish(RESULT_MQTT, "Canceled")
+            elif result == TaskResult.FAILED:
+                self.mqtt.mqttclient.publish(RESULT_MQTT, "Failed")
+            else:
+                self.mqtt.mqttclient.publish(RESULT_MQTT, "Unknown")
+            
 
     def timerTest(self):
         
@@ -111,7 +130,6 @@ class Nav2Navigator():
         self.nav.clearAllCostmaps()
 
         
-
 def main(args=None):
     rclpy.init()
     mqtt = MQTT()

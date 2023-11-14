@@ -37,14 +37,6 @@ class map_module(Node):
             self.publish_map,
             qos_profile_system_default)
         
-        
-        #self.cli = self.create_client(SaveMap, '/map_saver/save_map')
-        #while not self.cli.wait_for_service(timeout_sec=1.0):
-            #self.get_logger().info('service not available, waiting again...')
-        #self.req = SaveMap.Request()
-        
-        #self.saveCurrentMap()
-        
         self.timer = self.create_timer(1, self.timerTest)
 
     def timerTest(self):
@@ -81,7 +73,6 @@ class map_module(Node):
         self.ioMapData = struct.pack(">{}h".format(len(data)), *data)
         self.mqtt.mqttclient.publish(MAP_CONTENT_MQTT, self.ioMapData)
         
-
     def on_cmd_received(self, client, userdata, msg):
         self.get_logger().info('Received command "%s"' % msg.payload)
         #print("Received command {}".format(msg.payload))
@@ -89,10 +80,7 @@ class map_module(Node):
             self.saveMapBool = True
         elif msg.payload.decode("utf-8") == "update":
             #self.mqtt.mqttclient.publish(MAP_ORIGIN_MQTT, self.ioMapOrigin)
-            self.mqtt.mqttclient.publish(MAP_CONTENT_MQTT, self.ioMapData)
-
-
-            
+            self.mqtt.mqttclient.publish(MAP_CONTENT_MQTT, self.ioMapData)      
 
     def saveCurrentMap(self):
         print("Saving map...")
@@ -131,6 +119,3 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-
-
-
