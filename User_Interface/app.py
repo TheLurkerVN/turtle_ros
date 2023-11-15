@@ -21,6 +21,8 @@ class App(tk.Tk):
         center_y = int(screen_height/2 - window_height / 2)
         self.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
 
+        self.resizable(0, 0)
+
     def get_key(self, event):
         print(event.char)
 

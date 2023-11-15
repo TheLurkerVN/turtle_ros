@@ -9,11 +9,6 @@ import math
 
 from control import Control
 import backend_classes.topics as topics
-#MAP_ORIGIN = "map_origin"
-#MAP_CONTENT = "map_content"
-#POSE_MQTT = "pose_mqtt"
-#NAV_MQTT = "nav_mqtt"
-#CMD_MQTT = "cmd_mqtt"
 
 # Resolution 0.05 m/cell
 class Map(tk.Canvas):
@@ -28,7 +23,6 @@ class Map(tk.Canvas):
         self.container = container
         self.friendContainer = friendContainer
         self.config(bg = 'gray', height = 1000, width = 1000)    #CDCDCD
-        #self.place(x = 0, y = 0)
         self.pack(fill='both', side='left', expand='True')
         self.pack_propagate(False)
 
@@ -80,32 +74,20 @@ class Map(tk.Canvas):
         self.content = struct.unpack(">{}h".format(self.size[0] * self.size[1]), msg.payload[4:])
 
         self.size = self.size[::-1]
-        #mat = content
         mat = np.array(self.content)
         mat = mat.reshape(self.size)
         mat = np.fliplr(mat)
-        #mat = np.flipud(mat)
-        
-        
+
         for x in range(0, self.size[0]):
             for y in range(0, self.size[1]):
                 if mat[x, y] < 0 or mat[x, y] > 100:
                     mat[x, y] = 205
-                    #print("2", end = "")
                 elif mat[x, y] <= 25:
                     mat[x, y] = 254
-                    #print("0", end = "")
                 elif mat[x, y] >= 65:
                     mat[x, y] = 0
-                    #print("1", end = "")
                 else:
                     mat[x, y] = 205
-                    #print("2", end = "")
-            #print("")
-        #mat = np.flipud(mat)
-        
-        #mat = np.uint8(mat)
-        
 
         image = Image.fromarray(mat.astype(np.uint8), 'L')
         max_wh = 1000
@@ -118,7 +100,6 @@ class Map(tk.Canvas):
 
         self.scanImage = ImageTk.PhotoImage(newImage)
         self.itemconfig(self.mapCanvas, image = self.scanImage)
-        #self.mapCanvas = self.create_image(0,0, anchor="nw", image = self.scanImage)
         self.tag_raise(self.navDot)
         self.tag_raise(self.rotationLine)
         # Assign random container attr with the image so it doesn't flicker
@@ -128,8 +109,6 @@ class Map(tk.Canvas):
     def pose_receiver(self, client, userdata, msg):
         print("Received pose")
         self.pose = struct.unpack(">{}f".format(5), msg.payload[0:40])
-        #self.pose = [sum(x) for x in zip(self.pose,self.origin)]
-        #print(self.pose)
         self.rotation = self.pose[4]
         self.origin = self.pose[2:4]
         self.pose = self.pose[0:2]

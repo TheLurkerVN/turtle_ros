@@ -4,7 +4,6 @@ from launch.substitutions import LaunchConfiguration
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from ament_index_python.packages import get_package_share_directory
-from launch.substitutions import ThisLaunchFileDir
 
 import os
 from launch_ros.actions import Node
@@ -65,5 +64,4 @@ def generate_launch_description():
             arguments=['-d', rviz_config_dir],
             parameters=[{'use_sim_time': use_sim_time}],
             output='screen'),
-        
     ])
