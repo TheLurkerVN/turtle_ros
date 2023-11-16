@@ -3,7 +3,7 @@ from rclpy.node import Node
 from rclpy.qos import qos_profile_system_default
 from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 
-from geometry_msgs.msg import PoseStamped, TransformStamped
+from geometry_msgs.msg import PoseStamped, Twist
 from sensor_msgs.msg import BatteryState
 from nav_msgs.msg import Path
 
@@ -20,12 +20,15 @@ class navigation_module(Node):
         self.navPos = (0.0, 0.0)
         self.battery = 100.0
         self.mqtt = mqtt
+        self.isCalibrating = -1
         self.mqtt.mqttclient.message_callback_add(NAV_MQTT, self.on_nav_received)
         self.mqtt.mqttclient.message_callback_add(CMD_MQTT_NAV, self.on_cmd_received)
         self.navigator = Nav2Navigator()
         self.navigator.changeToNavMode()
         self.timer = self.create_timer(1, self.timerTest)
         self.timerProgress = self.create_timer(1, self.timerProgress)
+
+        self.keypub = self.create_publisher(Twist, 'cmd_vel', 10)
 
         self.subscription_battery = self.create_subscription(
             BatteryState,
@@ -61,6 +64,20 @@ class navigation_module(Node):
         if (self.controlString[2] == '1'):
             self.controlString[2] = '0'
             self.navigator.clearCostmap()
+            twist = Twist()
+            twist.linear.x = 0.0
+            twist.linear.y = 0.0
+            twist.linear.z = 0.0
+
+            twist.angular.x = 0.0
+            twist.angular.y = 0.0
+            if self.isCalibrating < 0:
+                twist.angular.z = 0.56 # 20% of BURGER_MAX_ANG_VEL
+            else:
+                twist.angular.z = 0.0
+            self.isCalibrating *= -1
+
+            self.keypub.publish(twist)
 
     def check_battery(self, msg):
         self.battery = msg.percentage

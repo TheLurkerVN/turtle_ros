@@ -24,6 +24,7 @@ class ControlPanel(ttk.Frame):
         self.grid_propagate(False)
 
         self.bat = 0.0
+        self.isCalib = -1
 
         self.statusFrame = tk.Frame(self)
         self.statusFrame.pack(side=tk.TOP, fill=tk.X)
@@ -56,7 +57,7 @@ class ControlPanel(ttk.Frame):
         self.cancel_button = tk.Button(self.buttonFrame, text = 'Cancel Navigation', command = self.cancel_navigation)
         self.slammode_button = tk.Button(self.buttonFrame, text = 'SLAM Mode', command = self.slammode_command)
         self.save_button = tk.Button(self.buttonFrame, text = 'Save Map', command = self.savemap_command)
-        self.update_button = tk.Button(self.buttonFrame, text = 'Update Map', command = self.update_command)
+        self.update_button = tk.Button(self.buttonFrame, text = 'Calibrate', command = self.update_command)
         
         self.navmode_button.grid(column = 0, row = 1, columnspan = 3, sticky = 'nesw')
         self.slammode_button.grid(column = 3, row = 1, columnspan = 3, sticky = 'nesw')
@@ -102,7 +103,11 @@ class ControlPanel(ttk.Frame):
 
     def update_command(self):
         self.mqtt.publishControl(topics.CMD_MQTT_NAV, "calibrate")
-        self.statusLabel.config(text = "Calibrating...")
+        if self.isCalib < 0:
+            self.GoToPoseLabel.config(text = "Calibrating...")
+        else:
+            self.GoToPoseLabel.config(text = "Stopped Calibration.")
+        self.isCalib *= -1
         print("calibrate")
 
     def slammode_command(self):

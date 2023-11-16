@@ -47,8 +47,8 @@ def generate_launch_description():
             name='posemodule'),
         Node(
             package='main_module',
-            executable='testthread',
-            name='testthread'),
+            executable='mapmodule',
+            name='mapmodule'),
 
         Node(
             package='nav2_map_server',
