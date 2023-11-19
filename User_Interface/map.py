@@ -37,6 +37,7 @@ class Map(tk.Canvas):
         self.rotationOffset = [0.0, 0.0]
         self.ratio = 0.0
         self.actualPos = (2.0, 2.0)
+        self.size = (0.0, 0.0)
 
         self.originDot = self.create_oval(self.actualPos[0] - 2, self.actualPos[1] - 2, self.actualPos[0] + 2, self.actualPos[1] + 2, fill = 'red')
         self.rotationLine = self.create_line(self.actualPos[0], self.actualPos[1], self.actualPos[0] + self.rotationOffset[0], self.actualPos[1] + self.rotationOffset[1], fill = 'red', width = 2)
@@ -51,6 +52,8 @@ class Map(tk.Canvas):
     def callback(self, event):
         if self.friendContainer.bat < 10:
             self.friendContainer.statusLabel.config(text = "Going to Point failed, please recharge")
+        elif not self.valid_point(self.canvasx(event.x), self.canvasy(event.y)):
+            self.friendContainer.statusLabel.config(text = "Invalid Point!")
         else:
             self.itemconfig(self.navDot, state='normal')
             x, y = self.canvasx(event.x), self.canvasy(event.y)
@@ -63,6 +66,11 @@ class Map(tk.Canvas):
             self.mqtt.publishControl(topics.NAV_MQTT, nav_param)
             self.friendContainer.statusLabel.config(text = "Going to Point")
  
+    def valid_point(self, x, y):
+        if (x >= self.size[1] * self.ratio) or (y >= self.size[0] * self.ratio):
+            return False
+        return True
+
     def map_origin_receiver(self, client, userdata, msg):
         print("Received map origin")
         self.origin = struct.unpack(">{}f".format(2), msg.payload[0:16])

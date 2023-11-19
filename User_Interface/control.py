@@ -23,7 +23,7 @@ class Control(tk.Frame):
         """
         print(self.winfo_width(), self.winfo_height())
         
-        self.percentage = 0.0
+        self.percentage = 100.0
         self.direction_calc = CalcVel()
         self.mqtt = mqtt
 

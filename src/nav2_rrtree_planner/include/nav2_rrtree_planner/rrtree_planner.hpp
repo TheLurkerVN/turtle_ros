@@ -59,7 +59,7 @@ protected:
   std::string global_frame_, name_;
 
   rclcpp::Clock::SharedPtr clock_;
-
+  
   int loop_count_;
   int branch_len_;
 };

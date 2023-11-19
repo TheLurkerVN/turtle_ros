@@ -23,7 +23,7 @@ class ControlPanel(ttk.Frame):
         self.pack_propagate(False)
         self.grid_propagate(False)
 
-        self.bat = 0.0
+        self.bat = 100.0
         self.isCalib = -1
 
         self.statusFrame = tk.Frame(self)
@@ -71,6 +71,9 @@ class ControlPanel(ttk.Frame):
         self.save_button.grid_forget()
         self.update_button.grid_forget()
 
+        self.nav_test_button = tk.Button(self, text = 'Go To Origin', command = self.test_navigation)
+        self.nav_test_button.place(x = 100, y = 700)
+
         self.controlPad = Control(self, mqtt)
 
         self.controlPad.place(x = 100, y = 400)
@@ -86,6 +89,13 @@ class ControlPanel(ttk.Frame):
 
     def origin_navigation(self):
         nav_coords = list((0.0, 0.0))
+        nav_param = struct.pack("{}d".format(2), *nav_coords)
+        self.mqtt.publishControl(topics.NAV_MQTT, nav_param)
+        self.GoToPoseLabel.config(text = "Going to Origin...")
+        print("go to origin")
+
+    def test_navigation(self):
+        nav_coords = list((1.0, 2.0))
         nav_param = struct.pack("{}d".format(2), *nav_coords)
         self.mqtt.publishControl(topics.NAV_MQTT, nav_param)
         self.GoToPoseLabel.config(text = "Going to Origin...")

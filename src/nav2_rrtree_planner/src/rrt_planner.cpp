@@ -204,6 +204,15 @@ namespace rrt_planner
     void rrt_planner::generateRawPath()
     {
         std::cout << "Generating raw path" << std::endl;
+        coordsW temp;
+        temp.x = goalRRT->_xPos;
+        temp.y = goalRRT->_yPos;
+        if (distance(treeRRT, temp) <= branchLen)
+        {
+            nearestRRT = treeRRT;
+            addChild(temp);
+            return;
+        }
         for (int i = 0; i < iterations; i++)
         {
             resetNearestValues();

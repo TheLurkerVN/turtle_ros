@@ -28,8 +28,7 @@ def generate_launch_description():
         'controller_server',
         'planner_server',
         'behavior_server',
-        'bt_navigator',
-        'velocity_smoother',]
+        'bt_navigator',]
     
     remappings = [('/tf', 'tf'),
                   ('/tf_static', 'tf_static')]
@@ -92,7 +91,7 @@ def generate_launch_description():
             executable='controller_server',
             output='screen',
             parameters=[configured_params],
-            remappings=remappings + [('cmd_vel', 'cmd_vel_nav')],
+            remappings=remappings,
         ),
         Node(
             package='nav2_planner',
@@ -117,15 +116,6 @@ def generate_launch_description():
             output='screen',
             parameters=[configured_params],
             remappings=remappings,
-        ),
-        Node(
-            package='nav2_velocity_smoother',
-            executable='velocity_smoother',
-            name='velocity_smoother',
-            output='screen',
-            parameters=[configured_params],
-            remappings=remappings
-            + [('cmd_vel', 'cmd_vel_nav'), ('cmd_vel_smoothed', 'cmd_vel')],
         ),
         Node(
             package='nav2_lifecycle_manager',
