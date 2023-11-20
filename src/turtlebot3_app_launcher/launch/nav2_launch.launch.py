@@ -8,8 +8,8 @@ from launch.actions import (
     SetEnvironmentVariable,
 )
 from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node
-from launch_ros.descriptions import ParameterFile
+from launch_ros.actions import Node, ComposableNodeContainer
+from launch_ros.descriptions import ParameterFile, ComposableNode
 from nav2_common.launch import RewrittenYaml
 
 
@@ -53,6 +53,60 @@ def generate_launch_description():
             convert_types=True),
         allow_substs=True)
     
+    container = ComposableNodeContainer(
+        name='custom_nav2_container',
+        namespace='',
+        package='rclcpp_components',
+        executable='component_container_isolated',
+        parameters=[configured_params_map],
+            composable_node_descriptions=[
+                ComposableNode(
+                    package='nav2_map_server',
+                    plugin='nav2_map_server::MapServer',
+                    name='map_server',
+                    parameters=[configured_params_map],
+                    remappings=remappings),
+                ComposableNode(
+                    package='nav2_amcl',
+                    plugin='nav2_amcl::AmclNode',
+                    name='amcl',
+                    parameters=[configured_params_map],
+                    remappings=remappings),
+                ComposableNode(
+                    package='nav2_controller',
+                    plugin='nav2_controller::ControllerServer',
+                    name='controller_server',
+                    parameters=[configured_params],
+                    remappings=remappings),
+                ComposableNode(
+                    package='nav2_planner',
+                    plugin='nav2_planner::PlannerServer',
+                    name='planner_server',
+                    parameters=[configured_params],
+                    remappings=remappings),
+                ComposableNode(
+                    package='nav2_behaviors',
+                    plugin='behavior_server::BehaviorServer',
+                    name='behavior_server',
+                    parameters=[configured_params],
+                    remappings=remappings),
+                ComposableNode(
+                    package='nav2_bt_navigator',
+                    plugin='nav2_bt_navigator::BtNavigator',
+                    name='bt_navigator',
+                    parameters=[configured_params],
+                    remappings=remappings),
+                ComposableNode(
+                    package='nav2_lifecycle_manager',
+                    plugin='nav2_lifecycle_manager::LifecycleManager',
+                    name='lifecycle_manager_navigation',
+                    parameters=[{'use_sim_time': use_sim_time,
+                                'autostart': autostart,
+                                'node_names': lifecycle_nodes}]),
+                ],
+            output='screen',
+    )
+
     return LaunchDescription([
         SetEnvironmentVariable(
             'RCUTILS_LOGGING_BUFFERED_STREAM', '1'),
@@ -72,58 +126,8 @@ def generate_launch_description():
             default_value=os.path.join(launch_dir, 'map', 'map_default.yaml'),
             description='Full path to map yaml file to load'),
 
-        Node(
-            package='nav2_map_server',
-            executable='map_server',
-            name='map_server',
-            output='screen',
-            parameters=[configured_params_map],
-            remappings=remappings),
-        Node(
-            package='nav2_amcl',
-            executable='amcl',
-            name='amcl',
-            output='screen',
-            parameters=[configured_params_map],
-            remappings=remappings),
-        Node(
-            package='nav2_controller',
-            executable='controller_server',
-            output='screen',
-            parameters=[configured_params],
-            remappings=remappings,
-        ),
-        Node(
-            package='nav2_planner',
-            executable='planner_server',
-            name='planner_server',
-            output='screen',
-            parameters=[configured_params],
-            remappings=remappings,
-        ),
-        Node(
-            package='nav2_behaviors',
-            executable='behavior_server',
-            name='behavior_server',
-            output='screen',
-            parameters=[configured_params],
-            remappings=remappings,
-        ),
-        Node(
-            package='nav2_bt_navigator',
-            executable='bt_navigator',
-            name='bt_navigator',
-            output='screen',
-            parameters=[configured_params],
-            remappings=remappings,
-        ),
-        Node(
-            package='nav2_lifecycle_manager',
-            executable='lifecycle_manager',
-            name='lifecycle_manager_localization',
-            output='screen',
-            parameters=[{'use_sim_time': use_sim_time},
-                        {'autostart': autostart},
-                        {'node_names': lifecycle_nodes}]),
+        container,
+
+        
     ])
     
