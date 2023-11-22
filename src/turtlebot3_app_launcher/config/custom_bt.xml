@@ -2,7 +2,7 @@
     <BehaviorTree ID="MainTree">
         <RecoveryNode number_of_retries="6" name="NavigateRecovery">
             <PipelineSequence name="NavigateWithReplanning">
-                <RateController hz="0.1">
+                <RateController hz="0.2">
                     <RecoveryNode number_of_retries="1" name="ComputePathToPose">
                         <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
                         <ReactiveFallback name="ComputePathToPoseRecoveryFallback">
@@ -22,12 +22,18 @@
             <ReactiveFallback name="RecoveryFallback">
                 <GoalUpdated/>
                 <RoundRobin name="RecoveryActions">
-                    <Sequence name="ClearingActions">
+                    <Sequence name="ClearingMaps">
                         <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
                         <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
                     </Sequence>
-                    <Wait wait_duration="5"/>
-                    <BackUp backup_dist="0.30" backup_speed="0.10"/>
+                    <Sequence name="BackupActions">
+                        <Wait wait_duration="5"/>
+                        <BackUp backup_dist="0.30" backup_speed="0.10"/>
+                    </Sequence>
+                    <Sequence name="BackupActions">
+                        <Wait wait_duration="5"/>
+                        <DriveOnHeading dist_to_travel="0.30" speed="0.10"/>
+                    </Sequence>
                     <Spin spin_dist="18.84956"/>               
                 </RoundRobin>
             </ReactiveFallback>

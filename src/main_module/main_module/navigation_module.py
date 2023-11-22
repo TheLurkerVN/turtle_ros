@@ -21,6 +21,7 @@ class navigation_module(Node):
         self.battery = 100.0
         self.mqtt = mqtt
         self.isCalibrating = -1
+        self.prevRes = TaskResult.UNKNOWN
         self.mqtt.mqttclient.message_callback_add(NAV_MQTT, self.on_nav_received)
         self.mqtt.mqttclient.message_callback_add(CMD_MQTT_NAV, self.on_cmd_received)
         self.navigator = Nav2Navigator()
@@ -37,20 +38,19 @@ class navigation_module(Node):
             qos_profile_system_default)
 
     def timerProgress(self):
-        if not self.navigator.nav.isTaskComplete():
-            feedback = self.navigator.nav.getFeedback()
-            print(feedback)
-        else:
+        if self.navigator.nav.isTaskComplete():
             print("Result:")
             result = self.navigator.nav.getResult()
-            if result == TaskResult.SUCCEEDED:
-                self.mqtt.mqttclient.publish(RESULT_MQTT, "Succeed")
-            elif result == TaskResult.CANCELED:
-                self.mqtt.mqttclient.publish(RESULT_MQTT, "Canceled")
-            elif result == TaskResult.FAILED:
-                self.mqtt.mqttclient.publish(RESULT_MQTT, "Failed")
-            else:
-                self.mqtt.mqttclient.publish(RESULT_MQTT, "Unknown")
+            if result != self.prevRes:
+                if result == TaskResult.SUCCEEDED:
+                    self.mqtt.mqttclient.publish(RESULT_MQTT, "Succeed")
+                elif result == TaskResult.CANCELED:
+                    self.mqtt.mqttclient.publish(RESULT_MQTT, "Canceled")
+                elif result == TaskResult.FAILED:
+                    self.mqtt.mqttclient.publish(RESULT_MQTT, "Failed")
+                else:
+                    self.mqtt.mqttclient.publish(RESULT_MQTT, "Unknown")
+                self.prevRes = result
             
 
     def timerTest(self):

@@ -12,6 +12,7 @@ MAP_ORIGIN_MQTT = "map_origin"
 MAP_CONTENT_MQTT = "map_content"
 RESULT_MQTT = "result_mqtt"
 
+
 #MQTT topics - out
 KEY_MQTT = "key_mqtt"
 NAV_MQTT = "nav_mqtt"

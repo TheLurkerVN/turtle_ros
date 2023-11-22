@@ -10,8 +10,8 @@ from nav2_msgs.srv import SaveMap
 #sudo pip3 install transforms3d
 from tf_transformations import euler_from_quaternion
 from .utils.mqtt_util import MQTT
-from .utils.topics import CMD_MQTT_MAP, POSE_MQTT
-from .utils.topics import POSE_TOPIC, MAP_TOPIC, MAP_ORIGIN_MQTT, MAP_CONTENT_MQTT
+from .utils.topics import CMD_MQTT_MAP, POSE_MQTT, RESULT_MQTT
+from .utils.topics import POSE_TOPIC, MAP_TOPIC, MAP_CONTENT_MQTT
 import struct
 
 class map_module(Node):
@@ -71,7 +71,9 @@ class map_module(Node):
         temp = list(msg.data)
         data = info + temp
         self.ioMapData = struct.pack(">{}h".format(len(data)), *data)
-        self.mqtt.mqttclient.publish(MAP_CONTENT_MQTT, self.ioMapData)
+        self.mqtt.mqttclient.publish(RESULT_MQTT, "Ready!")
+        
+        #self.mqtt.mqttclient.publish(MAP_CONTENT_MQTT, self.ioMapData)
         
     def on_cmd_received(self, client, userdata, msg):
         self.get_logger().info('Received command "%s"' % msg.payload)

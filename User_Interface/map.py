@@ -17,7 +17,6 @@ class Map(tk.Canvas):
         
         self.mqtt = mqtt
         self.mqtt.client.message_callback_add(topics.MAP_CONTENT_MQTT, self.map_receiver)
-        self.mqtt.client.message_callback_add(topics.MAP_ORIGIN_MQTT, self.map_origin_receiver)
         self.mqtt.client.message_callback_add(topics.POSE_MQTT, self.pose_receiver)  
 
         self.container = container
@@ -67,17 +66,12 @@ class Map(tk.Canvas):
             self.friendContainer.statusLabel.config(text = "Going to Point")
  
     def valid_point(self, x, y):
-        if (x >= self.size[1] * self.ratio) or (y >= self.size[0] * self.ratio):
+        if (x >= self.size[0] * self.ratio) or (y >= self.size[1] * self.ratio):
             return False
         return True
-
-    def map_origin_receiver(self, client, userdata, msg):
-        print("Received map origin")
-        self.origin = struct.unpack(">{}f".format(2), msg.payload[0:16])
         
     def map_receiver(self, client, userdata, msg):
         print("Received map content")
-        self.friendContainer.statusLabel.config(text = "Ready!")
         self.size = struct.unpack(">{}h".format(2), msg.payload[0:4])
         self.content = struct.unpack(">{}h".format(self.size[0] * self.size[1]), msg.payload[4:])
 

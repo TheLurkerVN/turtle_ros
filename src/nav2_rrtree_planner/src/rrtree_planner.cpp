@@ -125,7 +125,7 @@ nav_msgs::msg::Path RRT_Planner::createPlan(
     pose.pose.orientation.y = 0.0;
     pose.pose.orientation.z = 0.0;
     pose.pose.orientation.w = 1.0;
-    pose.header.stamp = node_->now();
+    //pose.header.stamp = node_->now();
     pose.header.frame_id = global_frame_;
     global_path.poses.push_back(pose);
   }

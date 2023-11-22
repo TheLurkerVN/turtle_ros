@@ -22,12 +22,8 @@ namespace rrt_planner
         costmap_->worldToMap(goal.pose.position.x, goal.pose.position.y, d[0], d[1]);
         treeRRT = new rrt_nodes(s[0], s[1]);
         goalRRT = new rrt_nodes(d[0], d[1]);
-        
-        occupiedMinX = s[0];
-        occupiedMinY = s[1];
-        occupiedMaxX = s[0];
-        occupiedMaxY = s[1];
         nearestRRT = new rrt_nodes();
+
         nearestDistance = 50000;
 
         std::cout << "size: " << sizeX << " " << sizeY << std::endl;

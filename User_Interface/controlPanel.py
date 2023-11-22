@@ -57,22 +57,25 @@ class ControlPanel(ttk.Frame):
         self.cancel_button = tk.Button(self.buttonFrame, text = 'Cancel Navigation', command = self.cancel_navigation)
         self.slammode_button = tk.Button(self.buttonFrame, text = 'SLAM Mode', command = self.slammode_command)
         self.save_button = tk.Button(self.buttonFrame, text = 'Save Map', command = self.savemap_command)
-        self.update_button = tk.Button(self.buttonFrame, text = 'Calibrate', command = self.update_command)
+        self.calibrate_button = tk.Button(self.buttonFrame, text = 'Calibrate', command = self.calibrate_command)
+        self.update_button = tk.Button(self.buttonFrame, text = 'Fetch Map', command = self.update_command)
         
-        self.navmode_button.grid(column = 0, row = 1, columnspan = 3, sticky = 'nesw')
-        self.slammode_button.grid(column = 3, row = 1, columnspan = 3, sticky = 'nesw')
+        self.navmode_button.grid(column = 0, row = 0, columnspan = 3, sticky = 'nesw')
+        self.slammode_button.grid(column = 3, row = 0, columnspan = 3, sticky = 'nesw')
+        self.update_button.grid(column = 0, row = 1, columnspan = 6, sticky = 'nesw')
         self.nav_origin_button.grid(column = 0, row = 2, columnspan = 2, sticky = 'nesw')
         self.cancel_button.grid(column = 2, row = 2, columnspan = 2, sticky = 'nesw')
         self.save_button.grid(column = 0, row = 2, columnspan = 6, sticky='nesw')
-        self.update_button.grid(column = 4, row = 2, columnspan = 2, sticky = 'nesw')
+        self.calibrate_button.grid(column = 4, row = 2, columnspan = 2, sticky = 'nesw')
         
         self.nav_origin_button.grid_forget()
         self.cancel_button.grid_forget()
         self.save_button.grid_forget()
+        self.calibrate_button.grid_forget()
         self.update_button.grid_forget()
 
-        self.nav_test_button = tk.Button(self, text = 'Go To Origin', command = self.test_navigation)
-        self.nav_test_button.place(x = 100, y = 700)
+        #self.nav_test_button = tk.Button(self, text = 'Go To Origin', command = self.test_navigation)
+        #self.nav_test_button.place(x = 100, y = 700)
 
         self.controlPad = Control(self, mqtt)
 
@@ -85,7 +88,10 @@ class ControlPanel(ttk.Frame):
         self.batteryLabel.config(text = "Battery: {}%".format(self.bat))
 
     def gotopose_status(self, client, userdata, msg):
-        self.GoToPoseLabel.config(text = msg.payload)
+        if msg.payload.decode("utf-8") == "Ready!":
+            self.statusLabel.config(text = msg.payload)
+        else:
+            self.GoToPoseLabel.config(text = msg.payload)
 
     def origin_navigation(self):
         nav_coords = list((0.0, 0.0))
@@ -111,7 +117,7 @@ class ControlPanel(ttk.Frame):
         self.GoToPoseLabel.config(text = "Saved Map")
         print("savemap")
 
-    def update_command(self):
+    def calibrate_command(self):
         self.mqtt.publishControl(topics.CMD_MQTT_NAV, "calibrate")
         if self.isCalib < 0:
             self.GoToPoseLabel.config(text = "Calibrating...")
@@ -119,6 +125,9 @@ class ControlPanel(ttk.Frame):
             self.GoToPoseLabel.config(text = "Stopped Calibration.")
         self.isCalib *= -1
         print("calibrate")
+
+    def update_command(self):
+        self.mqtt.publishControl(topics.CMD_MQTT_MAP, "update")
 
     def slammode_command(self):
         print("slammode")
@@ -128,8 +137,9 @@ class ControlPanel(ttk.Frame):
         self.navmode_button.config(bg = 'red')
         self.nav_origin_button.grid_forget()
         self.cancel_button.grid_forget()
-        self.update_button.grid_forget()
-        self.save_button.grid(column = 0, row = 2, columnspan = 6, sticky='nesw')
+        self.calibrate_button.grid_forget()
+        self.save_button.grid(column = 0, row = 1, columnspan = 3, sticky='nesw')
+        self.update_button.grid(column = 3, row = 1, columnspan = 3, sticky = 'nesw')
 
     def navigationmode_command(self):
         print("navmode")
@@ -138,6 +148,7 @@ class ControlPanel(ttk.Frame):
         self.navmode_button.config(bg = 'green')
         self.slammode_button.config(bg = 'red')
         self.save_button.grid_forget()
-        self.nav_origin_button.grid(column = 0, row = 2, columnspan = 2, sticky = 'nesw')
-        self.cancel_button.grid(column = 2, row = 2, columnspan = 2, sticky = 'nesw')
-        self.update_button.grid(column = 4, row = 2, columnspan = 2, sticky = 'nesw')
+        self.nav_origin_button.grid(column = 0, row = 1, columnspan = 3, sticky = 'nesw')
+        self.cancel_button.grid(column = 3, row = 1, columnspan = 3, sticky = 'nesw')
+        self.calibrate_button.grid(column = 0, row = 2, columnspan = 3, sticky = 'nesw')
+        self.update_button.grid(column = 3, row = 2, columnspan = 3, sticky = 'nesw')
