@@ -27,8 +27,8 @@ namespace rrt_planner
         nearestDistance = 50000;
 
         std::cout << "size: " << sizeX << " " << sizeY << std::endl;
-        std::cout << "start: " << treeRRT->_xPos << " " << treeRRT->_yPos << std::endl;
-        std::cout << "end: " << goalRRT->_xPos << " " << goalRRT->_yPos << std::endl;
+        std::cout << "start: " << treeRRT->getPosX() << " " << treeRRT->getPosY() << std::endl;
+        std::cout << "end: " << goalRRT->getPosX() << " " << goalRRT->getPosY() << std::endl;
     }
 
     coordsW rrt_planner::samplePoint()
@@ -37,8 +37,8 @@ namespace rrt_planner
         int coin = rand() % 100;
         if (coin < 10)
         {
-            temp.x = goalRRT->_xPos;
-            temp.y = goalRRT->_yPos;
+            temp.x = goalRRT->getPosX();
+            temp.y = goalRRT->getPosY();
         }
         else
         {
@@ -51,16 +51,16 @@ namespace rrt_planner
     float rrt_planner::distance(rrt_nodes* node, coordsW point)
     {
         coordsW temp;
-        temp.x = node->_xPos - point.x;
-        temp.y = node->_yPos - point.y;
+        temp.x = node->getPosX() - point.x;
+        temp.y = node->getPosY() - point.y;
         return sqrt(temp.x * temp.x + temp.y * temp.y);
     }
 
     coordsW rrt_planner::getUnitVector(rrt_nodes* start, coordsW end)
     {
         coordsW vector;
-        vector.x = end.x - (double) start->_xPos;
-        vector.y = end.y - (double) start->_yPos;
+        vector.x = end.x - (double) start->getPosX();
+        vector.y = end.y - (double) start->getPosY();
         
         double norm = sqrt(vector.x * vector.x + vector.y * vector.y);
         coordsW unitVector;
@@ -72,28 +72,28 @@ namespace rrt_planner
 
     void rrt_planner::addChild(coordsW point)
     {
-        if (point.x == goalRRT->_xPos && point.y == goalRRT->_yPos)
+        if (point.x == goalRRT->getPosX() && point.y == goalRRT->getPosY())
         {
-            if (nearestRRT->_child.size() != 0)
+            if (nearestRRT->getChildArr().size() != 0)
             {
                 std::cout << "Encoutered child\n";
-                goalRRT->_parent = nearestRRT->_child.back();
-                nearestRRT->_child.back()->_child.push_back(goalRRT);
+                goalRRT->setParent(nearestRRT->getChildArr().back());
+                nearestRRT->getChildArr().back()->getChildArr().push_back(goalRRT);
+                //nearestRRT->_child.back()->_child.push_back(goalRRT);
             }
             else
             {
                 std::cout << "Encoutered zero child\n";
-                goalRRT->_parent = nearestRRT;
-                nearestRRT->_child.push_back(goalRRT);
+                goalRRT->setParent(nearestRRT);
+                nearestRRT->setChild(goalRRT);
             }
-            std::cout << nearestRRT->_child.size() << std::endl;
-            
+            std::cout << nearestRRT->getChildArr().size() << std::endl;
         }
         else
         {
             rrt_nodes* temp = new rrt_nodes(point.x, point.y);
-            nearestRRT->_child.push_back(temp);
-            temp->_parent = nearestRRT;
+            nearestRRT->setChild(temp);
+            temp->setParent(nearestRRT);
         }    
     }
 
@@ -105,8 +105,8 @@ namespace rrt_planner
         offset.y = branchLen * u_vector.y;
         //std::cout << "offset: " << offset.x << " " << offset.y << std::endl;
         coordsW point;
-        point.x = start->_xPos + round(offset.x);
-        point.y = start->_yPos + round(offset.y);
+        point.x = start->getPosX() + round(offset.x);
+        point.y = start->getPosY() + round(offset.y);
 
         if (point.x >= sizeX)
         {
@@ -133,8 +133,8 @@ namespace rrt_planner
         coordsW tempPoint;
         for (int i = 0; i < (int) distance(start, end); i++)
         {
-            tempPoint.x = round(start->_xPos + i * unitVector.x);
-            tempPoint.y = round(start->_yPos + i * unitVector.y);
+            tempPoint.x = round(start->getPosX() + i * unitVector.x);
+            tempPoint.y = round(start->getPosY() + i * unitVector.y);
 
             int cost = costmap_->getCost((int) (sizeX * tempPoint.y + tempPoint.x));
             if (cost >= LETHAL_COST && cost <= OBS_COST)
@@ -166,14 +166,9 @@ namespace rrt_planner
             nearestRRT = root;
         }
         
-        for (int i = 0; i < root->_child.size(); i++)
+        for (int i = 0; i < root->getChildArr().size(); i++)
         {
             findNearestNode(root->getChild(i), point);
-        }
-
-        if (nearestRRT->_xPos < 0)
-        {
-            std::cout << "OverflowNearest: " << root->_xPos << " " << root->_yPos << std::endl;
         }
     }
 
@@ -185,24 +180,24 @@ namespace rrt_planner
 
     void rrt_planner::backtrack(rrt_nodes *goal)
     {
-        if (goal->_xPos == treeRRT->_xPos && goal->_yPos == treeRRT->_yPos)
+        if (goal->getPosX() == treeRRT->getPosX() && goal->getPosY() == treeRRT->getPosY())
         {
             return;
         }
         coordsW current;
-        current.x = goal->_xPos;
-        current.y = goal->_yPos;
+        current.x = goal->getPosX();
+        current.y = goal->getPosY();
         waypoints.push_back(current);
         
-        backtrack(goal->_parent);
+        backtrack(goal->getParent());
     }
 
     void rrt_planner::generateRawPath()
     {
         std::cout << "Generating raw path" << std::endl;
         coordsW temp;
-        temp.x = goalRRT->_xPos;
-        temp.y = goalRRT->_yPos;
+        temp.x = goalRRT->getPosX();
+        temp.y = goalRRT->getPosY();
         if (distance(treeRRT, temp) <= branchLen)
         {
             nearestRRT = treeRRT;
@@ -222,7 +217,7 @@ namespace rrt_planner
             bool isObstructed = checkObstacle(nearestRRT, newPoint);
             if (!isObstructed)
             {
-                if (newPoint.x == goalRRT->_xPos && newPoint.y == goalRRT->_yPos)
+                if (newPoint.x == goalRRT->getPosX() && newPoint.y == goalRRT->getPosY())
                 {
                     addChild(newPoint);
                     break;
@@ -235,8 +230,8 @@ namespace rrt_planner
                         //std::cout << checkObstacle(goalRRT, newPoint) << std::endl;
                         std::cout << "Found goal!" << std::endl;
                         coordsW temp;
-                        temp.x = goalRRT->_xPos;
-                        temp.y = goalRRT->_yPos;
+                        temp.x = goalRRT->getPosX();
+                        temp.y = goalRRT->getPosY();
                         addChild(temp);
                         break;
                     }
@@ -251,24 +246,16 @@ namespace rrt_planner
         {
             return;
         }
-        for (int i = 0; i < tree->_child.size(); i++)
+        for (int i = 0; i < tree->getChildSize(); i++)
         {
             clearTree(tree->getChild(i));
         }
-        std::cout << "Deleting node " << tree->_xPos << " " << tree->_yPos << " " << tree->_child.size() << std::endl;
+        std::cout << "Deleting node " << tree->getPosX() << " " << tree->getPosY() << " " << tree->getChildSize() << std::endl;
         
-        if (tree->_xPos == goalRRT->_xPos && tree->_yPos == goalRRT->_yPos)
+        if (tree->getPosX() == goalRRT->getPosX() && tree->getPosY() == goalRRT->getPosY())
         {
             std::cout << "This is the goal" << std::endl;
-            std::cout << "Deleting goal node " << tree->_xPos << " " << tree->_yPos << " " << tree->_child.size() << std::endl;
-            if (tree->_parent)
-            {
-                std::cout << "Parent node: " << tree->_parent->_xPos << " " << tree->_parent->_yPos << " " << tree->_parent->_child.size() << std::endl;
-                for (int i = 0; i < tree->_parent->_child.size(); i++)
-                {
-                    std::cout << tree->_parent->getChild(i)->_xPos << " " << tree->_parent->getChild(i)->_yPos << std::endl;
-                }
-            }
+            std::cout << "Deleting goal node " << tree->getPosX() << " " << tree->getPosY() << " " << tree->getChildSize() << std::endl;
         }
         
         if (tree)
@@ -285,7 +272,7 @@ namespace rrt_planner
         std::cout << "backtracking" << std::endl;
 
         
-        if (goalRRT->_parent)
+        if (goalRRT->getParent())
         {
 
             std::cout << std::endl;
@@ -299,7 +286,7 @@ namespace rrt_planner
             raw_path.reserve(waypoints.size());
 
             coordsW temp;
-            costmap_->mapToWorld(treeRRT->_xPos, treeRRT->_yPos, temp.x, temp.y);
+            costmap_->mapToWorld(treeRRT->getPosX(), treeRRT->getPosY(), temp.x, temp.y);
             raw_path.push_back(temp);
 
             for (int i = waypoints.size() - 1; i >= 0; i--)
