@@ -87,13 +87,14 @@ namespace rrt_planner
                 goalRRT->setParent(nearestRRT);
                 nearestRRT->setChild(goalRRT);
             }
-            std::cout << nearestRRT->getChildArr().size() << std::endl;
         }
         else
         {
             rrt_nodes* temp = new rrt_nodes(point.x, point.y);
             nearestRRT->setChild(temp);
             temp->setParent(nearestRRT);
+            std::cout << "New point " << point.x << " " << point.y << std::endl;
+            std::cout << "Parent " << temp->getParent()->getPosX() << " " << temp->getParent()->getPosY() << std::endl;
         }    
     }
 
@@ -220,11 +221,13 @@ namespace rrt_planner
                 if (newPoint.x == goalRRT->getPosX() && newPoint.y == goalRRT->getPosY())
                 {
                     addChild(newPoint);
+
                     break;
                 }
                 else
                 {
                     addChild(newPoint);
+                    
                     if (checkGoal(newPoint))
                     {
                         //std::cout << checkObstacle(goalRRT, newPoint) << std::endl;
@@ -251,6 +254,10 @@ namespace rrt_planner
             clearTree(tree->getChild(i));
         }
         std::cout << "Deleting node " << tree->getPosX() << " " << tree->getPosY() << " " << tree->getChildSize() << std::endl;
+        if (tree->getParent())
+        {
+            std::cout << "Parent node " << tree->getParent()->getPosX() << " " << tree->getParent()->getPosX() << std::endl;
+        }
         
         if (tree->getPosX() == goalRRT->getPosX() && tree->getPosY() == goalRRT->getPosY())
         {
