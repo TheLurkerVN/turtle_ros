@@ -125,9 +125,10 @@ controller_server:
 
     # DWB parameters
     FollowPath:
+      #plugin: "dwb_core::DWBLocalPlanner"
       plugin: "nav2_rotation_shim_controller::RotationShimController"
       primary_controller: "dwb_core::DWBLocalPlanner"
-      angular_dist_threshold: 0.523599
+      angular_dist_threshold: 1.0472
       forward_sampling_distance: 1.0
       rotate_to_heading_angular_vel: 2.0
       max_angular_accel: 15.0   #maximum speed: (1/controller_frequency) * max_angular_accel
